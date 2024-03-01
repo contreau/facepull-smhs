@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "facepull-smhs",
+  "name": "facultyfetch-smhs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Conor Kelley",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.3.0",
