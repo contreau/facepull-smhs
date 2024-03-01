@@ -1,8 +1,9 @@
 import fs from "fs";
-import path from "path";
 import { JSDOM } from "jsdom";
 import promptSync from "prompt-sync";
 import chalk from "chalk";
+import { Worker } from "worker_threads";
+import os from "os";
 
 async function main() {
   // ** user provides URL input
@@ -10,34 +11,18 @@ async function main() {
   const url = prompt("Provide a valid faculty page URL: ");
 
   // ** parses a faculty member's name and image url from <tr>
-  function parseDetails(html) {
+  function parseDetails(html, dirPath) {
     let dom = new JSDOM(html).window.document;
     const imgSRC = dom.querySelector("img").src;
     const name = dom.querySelector("p").textContent.split(" ").join("");
     return {
       name: name,
       src: imgSRC,
+      dirPath: dirPath,
     };
   }
 
-  // ** save images to file system
-  async function saveImage(imgURL, filename, dirPath) {
-    try {
-      const raw = await fetch(imgURL);
-      const response = await raw.arrayBuffer();
-      const buffer = Buffer.from(response);
-      fs.writeFile(path.join(dirPath, filename), buffer, (error) => {
-        error ? console.error(error) : true;
-      });
-      return true;
-    } catch (err) {
-      console.error(chalk.hex("#ff3000")(`FAILED TO RETRIEVE ${filename}`));
-      failedRetrievals.push(filename); // closure *dab*
-      return false;
-    }
-  }
-
-  const dirPath = `./${url.split(".smhs")[0].split("//")[1]}`;
+  const dirPath = `./img-${url.split(".smhs")[0].split("//")[1]}`;
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
   const res = await fetch(url);
   const html = await res.text();
@@ -47,47 +32,42 @@ async function main() {
   const rows = Array.from(container.querySelectorAll("tr"));
   const faculty = rows
     .map((row) => row.innerHTML)
-    .map((entry) => parseDetails(entry))
+    .map((entry) => parseDetails(entry, dirPath))
     .filter((entry) => !entry.src.includes("/sites/"));
+  const facultyCount = faculty.length;
 
-  console.log(chalk.hex("#007cff").bold("EXPECTED RESULTS:"), faculty.length);
-  let count = 0;
-  let retrievalFail = false;
-  let failedRetrievals = [];
-  for (let member of faculty) {
-    const result = await saveImage(member.src, `${member.name}.jpg`, dirPath);
-    count++;
-    if (result) {
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(`${count}/${faculty.length} images requested.`);
-      // console.log(`${member.name}.jpg retrieved.`);
-    } else if (!result) {
-      retrievalFail = true;
-      continue;
+  // jobs determined at this point, initiate worker threads
+  function chunkify(jobsArray, workers) {
+    let chunks = [];
+    for (let i = workers; i > 0; i--) {
+      chunks.push(jobsArray.splice(0, Math.ceil(jobsArray.length / i)));
     }
+    return chunks;
   }
 
-  // ** console messaging upon finishing
-  if (count === faculty.length && retrievalFail) {
-    console.log(
-      chalk.yellowBright.bold(
-        "\nFINISHED RETRIEVAL, COULD NOT RETRIEVE THE FOLLOWING:"
-      )
-    );
-    console.log(failedRetrievals);
-  } else {
-    console.log(chalk.hex("#00ff9f").bold("\nALL IMAGES RETRIEVED."));
-  }
+  const cpus = Math.floor(os.cpus().length * 0.8);
+  const chunks = chunkify(faculty, cpus);
+  console.log(chalk.hex("#007cff").bold("Retrieving faculty images..."));
+  const time1 = performance.now();
+  const work = new Promise((resolve) => {
+    chunks.forEach((facultyChunk, i) => {
+      const worker = new Worker("./worker.js");
+      worker.postMessage(facultyChunk);
+      worker.on("exit", () => {
+        if (i === cpus - 1) resolve(true);
+      });
+    });
+  });
+
+  await work;
+  const time2 = performance.now();
   console.log(
-    chalk.hex("#ffe300")(`These images are saved to ${dirPath.slice(1)}`)
+    chalk.hex("#00ff9f").bold(`\nRetrieved`),
+    facultyCount,
+    chalk.hex("#00ff9f").bold(`images.`)
   );
+  console.log(`Completed in ${Math.floor(time2 - time1)} ms.`);
+  console.log(chalk.hex("#ffe300")(`\nSaved to ${dirPath.slice(1)}`));
 }
 
 main();
-
-// examples:
-// https://biochemistry.smhs.gwu.edu/faculty
-// https://psychiatry.smhs.gwu.edu/faculty
-// https://anatomy.smhs.gwu.edu/faculty
-// https://dermatology.smhs.gwu.edu/faculty
