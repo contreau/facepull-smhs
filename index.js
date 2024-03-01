@@ -64,10 +64,11 @@ async function main() {
   console.log(
     chalk.hex("#00ff9f").bold(`\nRetrieved`),
     facultyCount,
-    chalk.hex("#00ff9f").bold(`images.`)
+    chalk.hex("#00ff9f").bold(`images in`),
+    Math.floor(time2 - time1),
+    chalk.hex("#00ff9f").bold(`ms.`)
   );
-  console.log(`Completed in ${Math.floor(time2 - time1)} ms.`);
-  console.log(chalk.hex("#ffe300")(`\nSaved to ${dirPath.slice(1)}`));
+  console.log(chalk.hex("#ffe300")(`Saved to ${dirPath.slice(1)}`));
 }
 
 main();
