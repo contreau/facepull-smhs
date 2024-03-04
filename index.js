@@ -32,8 +32,8 @@ async function main() {
   const rows = Array.from(container.querySelectorAll("tr"));
   const faculty = rows
     .map((row) => row.innerHTML)
-    .map((entry) => parseDetails(entry, dirPath))
-    .filter((entry) => !entry.src.includes("/sites/"));
+    .filter((html) => html.includes("<img") && !html.includes("/sites/"))
+    .map((entry) => parseDetails(entry, dirPath));
   const facultyCount = faculty.length;
 
   // jobs determined at this point, initiate worker threads
