@@ -4,17 +4,54 @@ import promptSync from "prompt-sync";
 import chalk from "chalk";
 import { Worker } from "worker_threads";
 import os from "os";
+import writeXlsxFile from "write-excel-file/node";
 
 async function main() {
   // ** user provides URL input
   const prompt = promptSync();
   const url = prompt("Provide a valid faculty page URL: ");
+  const departmentName = `${url.split(".smhs")[0].split("//")[1]}`;
+
+  // ** excel file column names
+  let excelData = [
+    [
+      {
+        value: "Department",
+        fontWeight: "bold",
+      },
+      {
+        value: "Faculty",
+        fontWeight: "bold",
+      },
+      {
+        value: "Notes",
+        fontWeight: "bold",
+      },
+    ],
+  ];
 
   // ** parses a faculty member's name and image url from <tr>
   function parseDetails(html, dirPath) {
     let dom = new JSDOM(html).window.document;
     const imgSRC = dom.querySelector("img").src;
     const name = dom.querySelector("p").textContent.split(" ").join("");
+    excelData = [
+      ...excelData,
+      [
+        {
+          type: String,
+          value: `${url.split(".smhs")[0].split("//")[1]}`.toUpperCase(),
+        },
+        {
+          type: String,
+          value: `${dom.querySelector("p").textContent.trim()}`,
+        },
+        {
+          type: String,
+          value: "",
+        },
+      ],
+    ];
     return {
       name: name,
       src: imgSRC,
@@ -22,8 +59,9 @@ async function main() {
     };
   }
 
-  const dirPath = `./img-${url.split(".smhs")[0].split("//")[1]}`;
+  const dirPath = `./_${departmentName}`;
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
+  if (!fs.existsSync(`${dirPath}/img`)) fs.mkdirSync(`${dirPath}/img`);
   const res = await fetch(url);
   const html = await res.text();
   const document = new JSDOM(html).window.document;
@@ -60,6 +98,9 @@ async function main() {
   });
 
   await work;
+  await writeXlsxFile(excelData, {
+    filePath: `${dirPath}/${departmentName}-faculty.xlsx`,
+  });
   const time2 = performance.now();
   console.log(
     chalk.hex("#00ff9f").bold(`\nRetrieved`),
@@ -68,7 +109,7 @@ async function main() {
     Math.floor(time2 - time1),
     chalk.hex("#00ff9f").bold(`ms.`)
   );
-  console.log(chalk.hex("#ffe300")(`Saved to ${dirPath.slice(1)}`));
+  console.log(chalk.hex("#ffe300")(`Saved to ${dirPath.slice(2)}`));
 }
 
 main();

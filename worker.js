@@ -29,7 +29,7 @@ parentPort.on("message", async (faculty) => {
     const result = await saveImage(
       member.src,
       `${member.name}.jpg`,
-      member.dirPath
+      `${member.dirPath}/img`
     );
     count++;
     if (!result) {
