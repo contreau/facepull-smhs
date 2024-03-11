@@ -34,7 +34,17 @@ async function main() {
   function parseDetails(html, dirPath) {
     let dom = new JSDOM(html).window.document;
     const imgSRC = dom.querySelector("img").src;
-    const name = dom.querySelector("p").textContent.split(" ").join("");
+    let name;
+    let excelName;
+    if (dom.querySelector("strong") !== null) {
+      name =
+        dom.querySelector("strong")?.textContent.split(" ").join("") ??
+        "Unknown";
+      excelName = dom.querySelector("strong")?.textContent.trim() ?? "Unknown";
+    } else {
+      name = dom.querySelector("p").textContent.split(" ").join("");
+      excelName = dom.querySelector("p").textContent.trim();
+    }
     excelData = [
       ...excelData,
       [
@@ -44,7 +54,7 @@ async function main() {
         },
         {
           type: String,
-          value: `${dom.querySelector("p").textContent.trim()}`,
+          value: `${excelName}`,
         },
         {
           type: String,
@@ -60,19 +70,28 @@ async function main() {
   }
 
   const dirPath = `./_${departmentName}`;
-  if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
-  if (!fs.existsSync(`${dirPath}/img`)) fs.mkdirSync(`${dirPath}/img`);
   const res = await fetch(url);
   const html = await res.text();
   const document = new JSDOM(html).window.document;
   console.clear();
   const container = document.querySelector('[role="main"]');
   const rows = Array.from(container.querySelectorAll("tr"));
-  const faculty = rows
+  const filtered = rows
     .map((row) => row.innerHTML)
-    .filter((html) => html.includes("<img") && !html.includes("/sites/"))
-    .map((entry) => parseDetails(entry, dirPath));
+    .filter((html) => html.includes("<img") && !html.includes("/sites/"));
+
+  // Check for zero improper faculty images after filter
+  if (filtered.length === 0) {
+    console.log(
+      "No problematic images found - inspect the mail icons for improper embedding."
+    );
+    return;
+  }
+  const faculty = filtered.map((entry) => parseDetails(entry, dirPath));
   const facultyCount = faculty.length;
+  // Create directory after knowing there is at least one identified image
+  if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
+  if (!fs.existsSync(`${dirPath}/img`)) fs.mkdirSync(`${dirPath}/img`);
 
   // jobs determined at this point, initiate worker threads
   function chunkify(jobsArray, workers) {
