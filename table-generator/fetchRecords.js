@@ -43,7 +43,7 @@ export async function fetchRecords() {
 
       // * Links *
       // Profile
-      let dom = new JSDOM(infoColumn.children[0].innerHTML).window.document;
+      let dom = new JSDOM(infoColumn.innerHTML).window.document;
       const baseProfileURL =
         dom.querySelector("a")?.attributes["href"].value ?? null;
       if (baseProfileURL !== null) {
@@ -52,7 +52,6 @@ export async function fetchRecords() {
         if (!res1text.includes("No Record Found")) {
           profileURL = res1.url;
           // Email
-          dom = new JSDOM(infoColumn.innerHTML).window.document;
           const baseEmailURL =
             dom.querySelector("a img")?.parentNode.attributes["href"].value ??
             null;
