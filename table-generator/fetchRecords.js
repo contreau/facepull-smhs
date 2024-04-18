@@ -10,6 +10,7 @@ export async function fetchRecords() {
   const res = await fetch(url);
   const html = await res.text();
   const document = new JSDOM(html).window.document;
+  const heading = document.querySelector(".page-header").textContent;
   const container = document.querySelector('[role="main"]');
   const rows = Array.from(container.querySelectorAll("tr"));
 
@@ -135,7 +136,7 @@ export async function fetchRecords() {
       Math.floor(time2 - time1),
       chalk.hex("#00ff9f").bold(`ms.\n`)
     );
-    return finalFacultyRecords;
+    return { url: url, heading: heading, records: finalFacultyRecords };
   } catch (err) {
     console.error(err);
     console.log(lastKnownFaculty);
