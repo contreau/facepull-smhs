@@ -35,11 +35,55 @@ export async function fetchRecords() {
       facultyName = infoColumn.children[0].textContent.trim().split("\n")[0];
 
       // * Titles *
-      facultyTitles = infoColumn.textContent
-        .split("\n")
-        .map((item) => item.trim())
-        .filter((item) => item !== "");
-      facultyTitles.splice(0, 1);
+      facultyTitles = infoColumn.textContent.split("\n");
+      if (facultyTitles.slice(1).length > 1) {
+        facultyTitles = facultyTitles
+          .map((item) => item.trim())
+          .filter((item) => item !== "");
+        facultyTitles.splice(0, 1);
+      } else {
+        facultyTitles.splice(0, 1);
+        let titleString = facultyTitles[0];
+        const breaks = identifyLineBreaks(titleString);
+        let insertionIndices = [];
+        for (let br of breaks) {
+          let index = titleString.indexOf(br);
+          insertionIndices.push(index);
+        }
+        titleString = titleString.split("");
+        for (let index of insertionIndices) {
+          if (titleString[index + 1] === ")") {
+            titleString.splice(index + 2, 0, "!");
+          } else {
+            titleString.splice(index + 1, 0, "!");
+          }
+        }
+        titleString = titleString.join("");
+        facultyTitles = titleString.split("!").filter((title) => title !== "");
+      }
+
+      function identifyLineBreaks(stringInput) {
+        if (stringInput === "") {
+          return [];
+        } else {
+          let store = identifyLineBreaks(stringInput.slice(1));
+          if (stringInput[0] !== stringInput[0].toUpperCase()) {
+            // check if character to the immediate right is uppercase
+            if (stringInput[1] !== undefined) {
+              if (
+                stringInput[1] === stringInput[1].toUpperCase() &&
+                stringInput[1] !== " " &&
+                stringInput[1] !== ","
+              ) {
+                let target = stringInput[0] + stringInput[1];
+                store.push(target);
+                return store;
+              }
+            }
+          }
+          return store;
+        }
+      }
 
       // * Links *
       // Profile
