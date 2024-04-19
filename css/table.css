@@ -85,9 +85,9 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 360px) {
   .table-faculty tbody tr td div.faculty-info div.faculty-icon--container {
-    display: block;
     margin-top: 1.5rem;
+    display: block;
   }
 }
