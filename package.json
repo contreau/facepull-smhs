@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "facultyfetch-smhs",
+  "name": "fable-smhs",
   "version": "1.0.0",
   "description": "CLI web scraper and HTML generator for creating the new SMHS faculty tables.",
   "main": "index.js",
