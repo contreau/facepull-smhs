@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import chalk from "chalk";
 import { fetchRecords } from "./lib/fetchRecords.js";
 import { linkedRow, nullRow } from "./lib/rowTemplates.js";
 
@@ -17,11 +18,20 @@ async function createTables() {
   }
 
   let rows = "";
-  // TODO: finish row appending and add <br> to titles
-  // for (let faculty of records) {
-  //   if (faculty.profileURL === null) {
-  //   }
-  // }
+  for (let faculty of records) {
+    if (faculty.profileURL === null) {
+      const row = new nullRow(faculty.name, faculty.titles);
+      rows += row.html;
+    } else {
+      const row = new linkedRow(
+        faculty.name,
+        faculty.titles,
+        faculty.profileURL,
+        faculty.emailURL
+      );
+      rows += row.html;
+    }
+  }
 
   const tableHtml = `
   <div class="table-responsive">
@@ -33,11 +43,14 @@ async function createTables() {
   </div>
   `;
   fs.writeFile(
-    path.join("./html", `${htmlFileName}.html`),
+    path.join("./html", `${htmlFileName}-faculty-table.html`),
     tableHtml,
     (error) => {
       error ? console.error(error) : true;
     }
+  );
+  console.log(
+    chalk.hex("#ff5722").bold(`Created ${htmlFileName}-faculty-table.html\n`)
   );
 }
 
