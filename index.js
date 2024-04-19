@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { fetchRecords } from "./fetchRecords.js";
-import { linkedRow, nullRow } from "./rowTemplates.js";
+import { fetchRecords } from "./lib/fetchRecords.js";
+import { linkedRow, nullRow } from "./lib/rowTemplates.js";
 
 async function createTables() {
   const res = await fetchRecords();
