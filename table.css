@@ -1,0 +1,93 @@
+.table-faculty tbody {
+  border-top: solid 5px #0a5b80;
+}
+
+.table-faculty tbody tr {
+  --border-color: #0a5b8045;
+}
+
+.table-faculty tbody tr:hover img {
+  --border-color: #033c5a;
+}
+
+.table-faculty tbody tr td div.picture-frame img {
+  border-radius: 8px;
+  border: solid 7px var(--border-color);
+  transition: border 0.4s;
+}
+
+.table-faculty tbody tr td div.faculty-info {
+  padding: 0.5em;
+}
+
+.table-faculty tbody tr td div.faculty-info div.faculty-icon--container {
+  display: inline;
+  margin-right: 0.5rem;
+  a {
+    text-decoration: none;
+  }
+}
+
+.table-faculty
+  tbody
+  tr
+  td
+  div.faculty-info
+  div.faculty-icon--container
+  a
+  span.faculty-icon--color {
+  border: solid 2px #033c5a;
+  padding-left: 12.5px;
+  border-radius: 5px;
+  padding-top: 5.5px;
+  padding-bottom: 5px;
+  background-color: #033c5a;
+  color: #ffffff;
+  transition: 0.3s all;
+}
+
+.table-faculty
+  tbody
+  tr
+  td
+  div.faculty-info
+  div.faculty-icon--container
+  a
+  span.faculty-icon--color:hover {
+  background-color: #ffffff;
+  color: #033c5a;
+}
+
+.table-faculty tbody tr td {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.table-faculty .picture-frame .field--name-image {
+  margin-bottom: 0;
+}
+
+/* suggested global style for table-hover class: */
+.table-hover tbody tr {
+  transition: background-color 0.4s;
+}
+
+.table-faculty tr td:first-of-type {
+  width: 29.5%;
+}
+
+@media (max-width: 768px) {
+  .table-faculty tr td:first-of-type {
+    width: 50%;
+  }
+  .table-faculty tbody tr td div.faculty-info p.highlighted-text {
+    font-size: clamp(9px, 3vw, 17px);
+  }
+}
+
+@media (max-width: 400px) {
+  .table-faculty tbody tr td div.faculty-info div.faculty-icon--container {
+    display: block;
+    margin-top: 1.5rem;
+  }
+}
