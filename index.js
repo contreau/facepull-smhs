@@ -15,17 +15,6 @@ async function createTables() {
   const pageURL = prompt("Provide a valid faculty page URL: ");
   const time1 = performance.now();
 
-  // File Naming
-  const department = `${pageURL.split(".smhs")[0].split("//")[1]}`;
-  let htmlFileName;
-  if (department === "medicine") {
-    const rawText = heading.trim().split(" ");
-    rawText.splice(rawText.indexOf(rawText.at(-1)), 1);
-    htmlFileName = "medicine-" + rawText.join("");
-  } else {
-    htmlFileName = department;
-  }
-
   // Fetching
   const response = await fetch(pageURL);
   const html = await response.text();
@@ -82,6 +71,17 @@ async function createTables() {
     Math.floor(time2 - time1),
     chalk.hex("#00ff9f").bold(`ms.\n`)
   );
+
+  // File Naming
+  const department = `${pageURL.split(".smhs")[0].split("//")[1]}`;
+  let htmlFileName;
+  if (department === "medicine") {
+    const rawText = heading.trim().split(" ");
+    rawText.splice(rawText.indexOf(rawText.at(-1)), 1);
+    htmlFileName = "medicine-" + rawText.join("");
+  } else {
+    htmlFileName = department;
+  }
 
   // Combine + Write to File
   const finalHtml = `
