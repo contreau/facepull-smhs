@@ -6,13 +6,18 @@ import { JSDOM } from "jsdom";
 import { processRecords } from "./lib/processRecords.js";
 import { linkedRow, nullRow } from "./lib/rowTemplates.js";
 
-async function createTables() {
+async function createTables(firstUse) {
   let allHeadshots = [];
   let headshotCount = 0;
   let recordCount = 0;
   let body = "";
   const prompt = promptSync();
-  const pageURL = prompt("Provide a valid faculty page URL: ");
+  let pageURL;
+  if (firstUse) {
+    pageURL = prompt("Provide a valid faculty page URL: ");
+  } else {
+    pageURL = prompt("Provide another valid faculty page URL: ");
+  }
   const time1 = performance.now();
 
   // Fetching
@@ -97,6 +102,7 @@ async function createTables() {
   console.log(
     chalk.hex("#ff5722").bold(`Created ${htmlFileName}-faculty-table.html\n`)
   );
+  createTables(false);
 }
 
-createTables();
+createTables(true);
