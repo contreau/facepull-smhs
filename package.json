@@ -1,10 +1,9 @@
 {
   "type": "module",
-  "name": "fable-smhs",
+  "name": "smhs-faculty-generator",
   "version": "1.0.0",
-  "description": "CLI web scraper and HTML generator for creating the new SMHS faculty tables.",
+  "description": "CLI web scraper and HTML generator for implementing a new style of the SMHS faculty table listings.",
   "main": "index.js",
-  "keywords": [],
   "author": "Conor Kelley",
   "license": "ISC",
   "dependencies": {
