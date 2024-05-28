@@ -92,7 +92,7 @@ async function createTables(firstUse) {
   const finalHtml = `
   <!-- Faculty with Headshots (${headshotCount}):${allHeadshots} -->
   ${body}`;
-  fs.writeFile(
+  fs.writeFileSync(
     path.join("./html", `${htmlFileName}-faculty-table.html`),
     finalHtml,
     (error) => {
