@@ -10,6 +10,8 @@ async function createTables(firstUse) {
   let allHeadshots = [];
   let headshotCount = 0;
   let recordCount = 0;
+  let emptyRecords = 0;
+  let emptyRecordNames = [];
   let body = "";
   const prompt = promptSync();
   let pageURL;
@@ -33,8 +35,10 @@ async function createTables(firstUse) {
     // Processing
     for (let i = 0; i < tables.length; i++) {
       const res = await processRecords(tables[i]);
-      const { records, headshots } = res;
+      const { records, headshots, empty } = res;
 
+      emptyRecords += empty.count;
+      emptyRecordNames = [...emptyRecordNames, empty.names];
       headshotCount += headshots.length;
       recordCount += records.length;
       allHeadshots = [...allHeadshots, headshots];
@@ -92,6 +96,8 @@ async function createTables(firstUse) {
     // Combine + Write to File
     const finalHtml = `
   <!-- Faculty with Headshots (${headshotCount}):${allHeadshots} -->
+  
+  <!-- Faculty missing from Database (${emptyRecords}): ${emptyRecordNames} -->
   ${body}`;
     fs.writeFileSync(
       path.join("./html", `${htmlFileName}-faculty-table.html`),
