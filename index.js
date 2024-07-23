@@ -13,12 +13,21 @@ async function createTables(firstUse) {
   let emptyRecords = 0;
   let emptyRecordNames = [];
   let body = "";
+  let deleteNonDBEntries = false;
   const prompt = promptSync();
   let pageURL;
   if (firstUse) {
     pageURL = prompt("Provide a valid faculty page URL: ");
   } else {
     pageURL = prompt("Provide another valid faculty page URL: ");
+  }
+  const DBquestion = prompt(
+    "Delete entries that aren't found in the faculty database? (y / n): "
+  );
+  if (DBquestion === "y") {
+    deleteNonDBEntries = true;
+  } else {
+    deleteNonDBEntries = false;
   }
   const time1 = performance.now();
 
@@ -34,7 +43,7 @@ async function createTables(firstUse) {
 
     // Processing
     for (let i = 0; i < tables.length; i++) {
-      const res = await processRecords(tables[i]);
+      const res = await processRecords(tables[i], deleteNonDBEntries);
       const { records, headshots, empty } = res;
 
       emptyRecords += empty.count;
@@ -95,9 +104,20 @@ async function createTables(firstUse) {
 
     // Combine + Write to File
     const finalHtml = `
-  <!-- Faculty with Headshots (${headshotCount}):${allHeadshots} -->
+  <!--
+  Faculty with Headshots (${headshotCount})
+  --
+  ${allHeadshots}
+  --
+  -->
   
-  <!-- Faculty missing from Database (${emptyRecords}): ${emptyRecordNames} -->
+  <!--
+  Faculty missing from Database (${emptyRecords})
+  Removed from HTML - ${deleteNonDBEntries}
+  --
+  ${emptyRecordNames} 
+  --
+  -->
   ${body}`;
     fs.writeFileSync(
       path.join("./html", `${htmlFileName}-faculty-table.html`),
