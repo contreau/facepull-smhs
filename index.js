@@ -8,7 +8,9 @@ import { linkedRow, nullRow } from "./lib/rowTemplates.js";
 
 async function createTables(firstUse) {
   let allHeadshots = [];
+  let allEmptyHeadshots = [];
   let headshotCount = 0;
+  let emptyHeadshotCount = 0;
   let recordCount = 0;
   let emptyRecords = 0;
   let emptyRecordNames = [];
@@ -44,13 +46,15 @@ async function createTables(firstUse) {
     // Processing
     for (let i = 0; i < tables.length; i++) {
       const res = await processRecords(tables[i], deleteNonDBEntries);
-      const { records, headshots, empty } = res;
+      const { records, headshots, empty, emptyHeadshots } = res;
 
       emptyRecords += empty.count;
       emptyRecordNames = [...emptyRecordNames, empty.names];
       headshotCount += headshots.length;
+      emptyHeadshotCount += emptyHeadshots.length;
       recordCount += records.length;
       allHeadshots = [...allHeadshots, headshots];
+      allEmptyHeadshots = [...allEmptyHeadshots, emptyHeadshots];
       let tableHeading = "";
       if (i > 0) {
         tableHeading = "<h3>Table Heading</h3>";
@@ -110,7 +114,14 @@ async function createTables(firstUse) {
   ${allHeadshots}
   --
   -->
-  
+
+  <!--
+  Faculty with Headshots MISSING from Database (${emptyHeadshotCount})
+  --
+  ${allEmptyHeadshots}
+  --
+  -->
+
   <!--
   Faculty missing from Database (${emptyRecords})
   Removed from HTML - ${deleteNonDBEntries}
